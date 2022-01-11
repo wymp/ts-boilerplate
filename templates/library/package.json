@@ -1,0 +1,59 @@
+{
+  "name": "@openfinanceio/%{LIB_NAME}",
+  "version": "0.1.0",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "npx tsc",
+    "setup": "scripts/setup",
+    "test": "jest --verbose",
+    "prepublishOnly": "rm -Rf dist && npx tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://github.com:openfinanceio/%{REPO_NAME}.git"
+  },
+  "keywords": [
+    "Openfinance"
+  ],
+  "author": "Openfinance Developers",
+  "license": "Proprietary (Openfinance)",
+  "bugs": {
+    "url": "https://github.com/openfinanceio/%{REPO_NAME}/issues"
+  },
+  "homepage": "https://github.com/openfinanceio/%{REPO_NAME}#readme",
+  "dependencies": {
+    "@openfinanceio/data-model-specification": "^4.12.0",
+    "@types/node": "^8.10.58",
+    "runtypes": "^5.0.1"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.17",
+    "@types/sinon": "^4.3.3",
+    "husky": "^1.3.1",
+    "jest": "^24.8.0",
+    "prettier": "^1.16.0",
+    "pretty-quick": "^1.10.0",
+    "sinon": "^5.0.7",
+    "ts-jest": "^24.0.2",
+    "typescript": "^4.0.3"
+  },
+  "prettier": {
+    "printWidth": 100,
+    "trailingComma": "es5"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
+  },
+  "jest": {
+    "roots": [
+      "<rootDir>/tests"
+    ],
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    }
+  }
+}

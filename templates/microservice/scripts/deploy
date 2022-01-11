@@ -1,0 +1,21 @@
+#! /bin/bash
+
+bGit="git --git-dir ${PWD}/build/.git --work-tree ${PWD}/build"
+branch=$(git symbolic-ref HEAD 2>/dev/null)
+
+if [ -z "$branch" ]; then
+  echo "Cannot detect the branch to push"
+  exit 1
+fi
+
+case "$1" in 
+  prod)
+    read -p "You are about to push $branch to production.  Are you sure (yes/no)?" res
+    if [ "$res" == "yes" ]; then
+      $bGit push prod $branch
+    fi ;;
+  staging|demo1|demo2|demo3|beta|sandbox|dev)
+    $bGit push $1 $branch ;;
+  *)
+    echo "Unknown destination: $1" ;;
+esac

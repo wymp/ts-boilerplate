@@ -1,0 +1,48 @@
+#! /bin/bash
+
+bGit="git --git-dir build/.git --work-tree build"
+
+function alignBranches {
+  branchCandidate=$(git symbolic-ref HEAD 2>/dev/null)
+  if [ -z "$branchCandidate" ]; then
+    # We are in some weird detached state
+    echo "Please create a branch from this ref and try again"
+    exit 1
+  else
+    # Cool we are on a branch
+    branch=$(echo -n $branchCandidate | cut -c 12-)
+    if $bGit branch | grep -q $branch; then
+      $bGit checkout $branch
+    else
+      $bGit branch $branch prod
+      $bGit checkout $branch
+    fi
+  fi
+}
+
+set -e
+
+if [ ! -e "./build" ]; then
+  echo "build folder not found.  Aborting."
+  exit 1
+fi
+
+if [ -z "$npm_package_version" ]; then
+  echo "Please use 'npm run build' to run this script"
+  exit 1
+fi
+
+rm -Rf dist
+npx tsc
+alignBranches
+npx webpack-cli
+rsync -rl --delete --exclude shmig.local.conf githooks config.json db build/
+
+msg=$(echo -e "npm run build / $npm_package_version\n\nsrc: $(git rev-parse HEAD)")
+if [ "$1" == "commit" ]; then
+  $bGit add ./
+  $bGit commit -m "$msg"
+else
+  echo "Would have committed with the following message:"
+  echo "$msg"
+fi

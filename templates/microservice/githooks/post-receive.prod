@@ -1,0 +1,35 @@
+#!/bin/bash
+
+set -e
+
+function deploy() {
+    svcname="$(basename "$PWD")"
+    if [ "$svcname" == "build" ]; then
+        svcname="dev.$(basename "$(dirname "$PWD")" | sed 's/-src//')"
+    fi
+    echo "Restarting $svcname"
+    sudo systemctl restart "$svcname"
+}
+
+# Get to the repo root, but keep git intact
+cd ../
+export GIT_DIR="$PWD/.git"
+export GIT_WORK_TREE="$PWD/"
+
+n=0;
+while read oldrev newrev refname; do
+    # we only care about branches
+    if echo "$refname" | grep -Fq "/heads/"; then
+        !((n++))
+        targ_branch=$(git rev-parse --symbolic --abbrev-ref "$refname")
+    fi
+done;
+current_branch="$(git rev-parse --abbrev-ref HEAD)"
+
+
+if [ -z "$targ_branch" ] || [ "$targ_branch" != "$current_branch" ]; then
+    echo "'$current_branch' branch not pushed. Nothing to do."
+else
+    deploy
+fi
+

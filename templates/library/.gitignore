@@ -1,0 +1,4 @@
+*.sw[op]
+dist
+node_modules
+.node-xml*

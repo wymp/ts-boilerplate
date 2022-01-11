@@ -1,0 +1,6 @@
+*.sw[op]
+.node-xml*
+tests
+tsconfig*
+.vimrc
+.prettierignore

@@ -1,0 +1,34 @@
+#!/bin/bash
+
+set -e
+
+# Only act on branch checkouts (see https://git-scm.com/docs/githooks)
+if [ ! "$3" -eq "$3" ] &>/dev/null || [ "$3" -eq 0 ]; then
+    exit
+fi
+
+current_ref="$1"
+targ_ref="$2"
+
+# Exit it we haven't changed branches
+if [ "$current_ref" == "$targ_ref" ]; then
+    exit
+fi
+
+svcname="$(basename "$PWD")"
+if [ "$svcname" == "build" ]; then
+    svcname="dev.$(basename "$(dirname "$PWD")" | sed 's/-src//')"
+fi
+
+# Migrate database, if present
+if [ -d db ] && [ -f db/shmig.conf ]; then
+  if ! shmig-migrate-to-common-ancestor "$current_ref" "$targ_ref"; then
+      >&2 echo "W: Couldn't migrate database to common anscestor. Database state may not be correct."
+  fi
+  cd db
+  shmig up
+fi
+
+echo "Restarting $svcname"
+sudo systemctl restart "$svcname"
+
