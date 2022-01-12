@@ -2,3 +2,4 @@ node_modules
 *.sw[op]
 logs/*
 !.gitkeep
+dist
