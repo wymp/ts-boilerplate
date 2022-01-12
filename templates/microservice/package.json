@@ -12,11 +12,9 @@
     "type": "git",
     "url": "git+ssh://github.com:%{NAMESPACE}/%{PROJECT_NAME}-src.git"
   },
-  "keywords": [
-    "Openfinance"
-  ],
-  "author": "Openfinance Developers",
-  "license": "Proprietary (Openfinance)",
+  "keywords": [],
+  "author": "Some Developers",
+  "license": "ISC",
   "bugs": {
     "url": "https://github.com/%{NAMESPACE}/%{PROJECT_NAME}/issues"
   },
