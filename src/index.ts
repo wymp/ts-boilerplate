@@ -139,16 +139,26 @@ async function go(argv: Array<string>) {
       log(`Found repopath!`, verbose);
       break;
     } else {
-      // Otherwise, if lib exists, go forward
+      // Otherwise, if lib exists, try that
       const libExists = await exists(`${repopath}/lib/node_modules/@wymp/boilerplate`);
       if (libExists) {
         log(`Found 'lib' substructure. Setting repopath to that and trying again.`, verbose);
         repopath = `${repopath}/lib/node_modules/@wymp/boilerplate`;
       } else {
-        // Otherwise, go back another directory
-        log(`Trying one directory up.`, verbose);
-        const pathParts: Array<string> = repopath.split(/[\/\\]/);
-        repopath = `${pathParts.slice(0, pathParts.length - 1).join("/")}`;
+        // Otherwise, if @wymp/boilerplate exists, try that
+        const wympBoilerplateExists = await exists(`${repopath}/@wymp/boilerplate`);
+        if (wympBoilerplateExists) {
+          log(
+            `Found '@wymp/boilerplate' substructure. Setting repopath to that and trying again.`,
+            verbose
+          );
+          repopath = `${repopath}/@wymp/boilerplate`;
+        } else {
+          // Otherwise, go back another directory
+          log(`Trying one directory up.`, verbose);
+          const pathParts: Array<string> = repopath.split(/[\/\\]/);
+          repopath = `${pathParts.slice(0, pathParts.length - 1).join("/")}`;
+        }
       }
     }
 
