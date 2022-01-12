@@ -2,8 +2,6 @@ import * as fs from "fs";
 import * as jwt from "jsonwebtoken";
 import { SimpleHttpClientRpn, SimpleRpnRequestConfig } from "simple-http-client-rpn";
 import { MockSimpleLogger, MockSimpleHttpClient } from "ts-simple-interfaces-testing";
-import { Globals } from "@openfinanceio/data-model-specification";
-import { Weenie, OfnWeenie, MockOfnPubSub, MockCache, merge } from "@openfinanceio/service-lib";
 import * as Service from "../../src/Service";
 import { appConfigValidator, AppConfig } from "../../src/Types";
 import * as AppWeenie from "../../src/Weenie";
@@ -108,14 +106,11 @@ export const startFakeService = async (port: number) => {
     // dependencies, among other things. Following are the default mocks.
     const logger = new MockSimpleLogger();
     return {
-      // Mock ofapi
-      ofapi: new MockSimpleHttpClient(),
-
       // Mock logger
       logger,
 
       // Mock pubsub
-      pubsub: Promise.resolve(new MockOfnPubSub(logger)),
+      pubsub: Promise.resolve(new MockPubSub(logger)),
     };
   })
   // Mock cron
@@ -125,11 +120,11 @@ export const startFakeService = async (port: number) => {
   // Real mysql
   .and(Weenie.mysql)
   // Real auditor
-  .and(OfnWeenie.auditor)
+  .and(WympWeenie.auditor)
   // Mock cache
   .and((r: any) => ({ cache: new MockCache(r) }))
   // Real HTTP server
-  .and(OfnWeenie.http)
+  .and(Weenie.http)
   // Real IO class
   .and(AppWeenie.io)
 
@@ -146,7 +141,6 @@ export const startFakeService = async (port: number) => {
       http: d.http,
       getTcpListeners: d.getTcpListeners,
       sql: d.sql,
-      ofapi: d.ofapi,
       cron: d.cron,
       cache: d.cache,
       io,

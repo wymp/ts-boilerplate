@@ -1,6 +1,4 @@
 import { SimpleSqlDbInterface, SimpleHttpClientInterface } from "ts-simple-interfaces";
-import { Auditor } from "@openfinanceio/data-model-specification";
-import { OfnPubSubInterface } from "@openfinanceio/service-lib";
 
 /**
  * This class abstracts all io access into generalized or specific declarative method calls
@@ -8,8 +6,7 @@ import { OfnPubSubInterface } from "@openfinanceio/service-lib";
 export class Io {
   public constructor(
     protected db: SimpleSqlDbInterface,
-    protected ofapi: SimpleHttpClientInterface,
-    protected amqp: OfnPubSubInterface,
+    protected amqp: PubSubInterface,
     protected audit: Auditor.ClientInterface
   ) {}
 }

@@ -2,10 +2,10 @@
 
 repoName="$1"
 serviceNickname="$2"
+namespace="$3"
 
 function echoUsage() {
-  echo "USAGE: $(basename "$0") <service-name> <service-nickname>"
-  echo "<repo-name> should not include the -src or -dist suffix"
+  echo "USAGE: $(basename "$0") <service-name> <service-nickname> <github-namespace>"
 }
 
 if [ -z "$repoName" ]; then
@@ -18,52 +18,30 @@ if [ -z "$serviceNickname" ]; then
   exit 2
 fi
 
-echo
-echo "Setting up ${repoName} (${serviceNickname})"
-echo "====================================================================="
-echo
-
-# Check for existing build directory
-
-if [ -e "./build" ]; then
-  echo "There is already a build folder. Skipping build folder setup."
-else
-  git clone git@github.com:openfinanceio/ts-microservice-boilerplate-dist.git build
-  bGit="git --git-dir build/.git --work-tree build"
-  $bGit remote remove origin
-  $bGit remote add origin "git@github.com:openfinanceio/${repoName}.git"
-  $bGit checkout -b staging
-
-  # Configure remotes
-
-  $bGit remote add production "openfinance.io:/srv/local/$repoName"
-  for env in staging sandbox beta demo1 demo2 demo3; do
-    $bGit remote add $env "${env}.openfinance.io:/srv/local/${env}.$repoName"
-    $bGit fetch &>/dev/null || true
-  done
+if [ -z "$namespace" ]; then
+  >&2 echoUsage
+  exit 3
 fi
 
-# Change remotes on src repo to point to new service repo
-git remote remove origin
-git remote add origin "git@github.com:openfinanceio/${repoName}-src"
+echo
+echo "Setting up the @${namespace}/${repoName} service (${serviceNickname})"
+echo "============================================================================="
+echo
 
 # Replace names in codebase
-
-mv "pkg-src/deb/cfx-service-[nm]" "pkg-src/deb/cfx-service-${serviceNickname}"
-mv "pkg-src/generic/cfx-service-[nm]/usr/share/cfx-service-[nm]/[nm].service" "pkg-src/generic/cfx-service-[nm]/usr/share/cfx-service-[nm]/${repoName}.service"
-mv "pkg-src/generic/cfx-service-[nm]/usr/share/cfx-service-[nm]" "pkg-src/generic/cfx-service-[nm]/usr/share/cfx-service-${serviceNickname}"
-mv "pkg-src/generic/cfx-service-[nm]" "pkg-src/generic/cfx-service-${serviceNickname}"
 
 if command -v lsb_release &>/dev/null; then
   sedCommand="sed -i"
 else
-  sedCommand="sed -i ''"
+  sedCommand="sed -i '.bak'"
 fi
 $sedCommand "s/%{PROJECT""_NAME}/${repoName}/g" $(grep -rl PROJECT_NAME $PWD)
 $sedCommand "s/%{PROJECT""_NICKNAME}/${serviceNickname}/g" $(grep -rl PROJECT_NICKNAME $PWD)
+$sedCommand "s/%{NAME""SPACE}/${namespace}/g" $(grep -rl NAMESPACE $PWD)
+
+find "$PWD" -name '*.bak' -delete || true
 
 echo
-echo "Done setting up. There should now be unstaged changes in both source and build repos"
-echo "that you'll probably want to commit and push."
+echo "Done setting up. You should probably run \`git init\` and make an initial commit at this point."
 echo
 

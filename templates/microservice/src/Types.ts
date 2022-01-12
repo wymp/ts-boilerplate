@@ -1,9 +1,3 @@
-import {
-  ofapiConfigValidator,
-  Weenie,
-  OfnPubSubInterface,
-  httpConfigValidator,
-} from "@openfinanceio/service-lib";
 import { SimpleLoggerInterface, SimpleHttpRequestHandlerInterface } from "ts-simple-interfaces";
 import { Io } from "./Io";
 import * as rt from "runtypes";
@@ -14,7 +8,6 @@ export const appConfigValidator = rt.Intersect(
     http: httpConfigValidator,
     amqp: Weenie.mqConnectionConfigValidator,
     db: Weenie.databaseConfigValidator,
-    ofapi: ofapiConfigValidator,
     domain: rt.Literal("%{PROJECT_NAME}"),
     tests: rt.Record({
       apiGatewayKeys: rt.Record({
@@ -36,5 +29,5 @@ export type AppDeps = {
   http: SimpleHttpRequestHandlerInterface;
   cron: Weenie.CronInterface;
   io: Io;
-  pubsub: OfnPubSubInterface;
+  pubsub: PubSubInterface;
 };

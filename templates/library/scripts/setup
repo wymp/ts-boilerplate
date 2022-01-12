@@ -4,9 +4,10 @@ set -e
 
 libName="$1"
 repoName="$2"
+namespace="$3"
 
 function echoUsage() {
-  echo "USAGE: $(basename "$0") <lib-name> <repo-name>"
+  echo "USAGE: $(basename "$0") <lib-name> <repo-name> <github-namespace>"
 }
 
 if [ -z "$libName" ]; then
@@ -19,8 +20,13 @@ if [ -z "$repoName" ]; then
   exit 2
 fi
 
+if [ -z "$namespace" ]; then
+  >&2 echoUsage
+  exit 3
+fi
+
 echo
-echo "Setting up ${libName} (repo ${repoName})"
+echo "Setting up @${namespace}/${libName} (repo ${repoName})"
 echo "====================================================================="
 echo
 
@@ -33,27 +39,13 @@ else
 fi
 $sedCommand "s/%{LIB""_NAME}/${libName}/g" $(grep -rl LIB_NAME $PWD)
 $sedCommand "s/%{REPO""_NAME}/${repoName}/g" $(grep -rl REPO_NAME $PWD)
+$sedCommand "s/%{NAME""SPACE}/${namespace}/g" $(grep -rl NAMESPACE $PWD)
 
 # Clean up unnecessary backups on mac
 
 find "$PWD" -name '*.bak' -delete || true
 
-# Reset git remotes, if necessary
-
-if ! git remote -v | grep -q "${repoName}"; then
-  git remote remove origin
-  git remote add origin "git@github.com:openfinanceio/${repoName}.git"
-  git fetch origin || true &>/dev/null
-  if ! git branch --set-upstream-to=origin/v0.1.x v0.1.x &>/dev/null; then
-    >&2 echo
-    >&2 echo "  WARNING: Remote not found at github.com:openfinanceio/${repoName}.git. You'll"
-    >&2 echo "  have to push link your repo yourself once you've set up the remote."
-    >&2 echo
-  fi
-fi
-
 echo
-echo "Done setting up. There should now be unstaged changes in the repo that you'll probably want"
-echo "to commit and push."
+echo "Done setting up. You should probably run \`git init\` and make an initial commit at this point."
 echo
 

@@ -1,5 +1,5 @@
 {
-  "name": "@openfinanceio/%{LIB_NAME}",
+  "name": "@%{NAMESPACE}/%{LIB_NAME}",
   "version": "0.1.0",
   "description": "",
   "main": "dist/index.js",
@@ -12,21 +12,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://github.com:openfinanceio/%{REPO_NAME}.git"
+    "url": "git+ssh://github.com:%{NAMESPACE}/%{REPO_NAME}.git"
   },
-  "keywords": [
-    "Openfinance"
-  ],
-  "author": "Openfinance Developers",
-  "license": "Proprietary (Openfinance)",
+  "keywords": [],
+  "author": "Some Developers",
+  "license": "ISC",
   "bugs": {
-    "url": "https://github.com/openfinanceio/%{REPO_NAME}/issues"
+    "url": "https://github.com/%{NAMESPACE}/%{REPO_NAME}/issues"
   },
-  "homepage": "https://github.com/openfinanceio/%{REPO_NAME}#readme",
+  "homepage": "https://github.com/%{NAMESPACE}/%{REPO_NAME}#readme",
   "dependencies": {
-    "@openfinanceio/data-model-specification": "^4.12.0",
-    "@types/node": "^8.10.58",
-    "runtypes": "^5.0.1"
+    "@types/node": "^10.0.0",
+    "runtypes": "^6.0.0"
   },
   "devDependencies": {
     "@types/jest": "^24.0.17",

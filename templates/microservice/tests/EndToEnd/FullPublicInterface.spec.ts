@@ -24,7 +24,6 @@ describe("End-to-End Tests of %{PROJECT_NAME}", () => {
     r.pubsub.messages.splice(0, r.pubsub.messages.length);
     r.log.setOpt("outputMessages", false);
     r.log.clear();
-    r.ofapi.resetRequestLog();
   });
 
   /**

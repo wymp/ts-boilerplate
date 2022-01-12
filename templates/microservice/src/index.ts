@@ -1,4 +1,3 @@
-import { Weenie, OfnWeenie } from "@openfinanceio/service-lib";
 import { appConfigValidator, AppConfig, AppDeps } from "./Types";
 import * as Service from "./Service";
 import * as AppWeenie from "./Weenie";
@@ -16,13 +15,12 @@ process.on("uncaughtException", die);
  */
 (async () => {
   // prettier-ignore
-  const r = await OfnWeenie.service<AppConfig>(appConfigValidator)
+  const r = await Weenie.service<AppConfig>(appConfigValidator)
   .and(Weenie.backoff("exponential"))
   .and(Weenie.mysql)
-  .and(OfnWeenie.pubsub)
-  .and(OfnWeenie.ofapi)
-  .and(OfnWeenie.http)
-  .and(OfnWeenie.auditor)
+  .and(Weenie.pubsub)
+  .and(Weenie.http)
+  .and(Weenie.auditor)
   .and(AppWeenie.io)
   .done(async (d) => {
     // In this function, we await any remaining promises, then return a final dependency
@@ -42,5 +40,5 @@ process.on("uncaughtException", die);
   Service.start(r);
 
   // When done with everything, call `ready` to let the service manager know we're up and running
-  r.svc.initialized(true)
+  r.svc.initialized(true);
 })().catch(die);

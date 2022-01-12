@@ -21,23 +21,18 @@
     "password": "dev",
     "database": "dev.%{PROJECT_NAME}"
   },
-  "ofapi": {
-    "key": "907ebd22-1ab4-4d6d-86b3-4abade4fb095",
-    "secret": "3b8f6a74-3e8f-4514-9bdc-bf88863f5076",
-    "urlTemplate": "https://{subdomain}apis.openfinance.io"
-  },
   "http": {
     "listeners": [[5435, "localhost"]],
-    "apiGatewayPubkeyPath": "/usr/share/cfx-service-gateway/dev.auth-gateway.ecdsa.pem.pub"
+    "apiGatewayPubkeyPath": "/path/to/dev.auth-gateway.ecdsa.pem.pub"
   },
   "logger": {
-    "logLevel": "notice",
-    "logFilePath": "./logs/app.log"
+    "logLevel": "debug",
+    "logFilePath": null
   },
   "tests": {
     "apiGatewayKeys": {
-      "ES256Path": "/usr/share/cfx-service-gateway/dev.auth-gateway.ecdsa.pem",
-      "RS256Path": "/usr/share/cfx-service-gateway/dev.auth-gateway.rsa.pem"
+      "ES256Path": "/path/to/dev.auth-gateway.ecdsa.pem",
+      "RS256Path": "/path/to/dev.auth-gateway.rsa.pem"
     }
   }
 }
