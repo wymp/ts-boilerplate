@@ -1,6 +1,22 @@
 import { promises as fs } from "fs";
 
 /**
+ * Types
+ */
+declare type GlobalOptions = {
+  verbose: boolean;
+};
+
+declare type ValidCommands = "create" | "help" | "version";
+
+declare type Params = {
+  binary: string;
+  cmd: ValidCommands | null;
+  options: GlobalOptions;
+  args: Array<string>;
+};
+
+/**
  * Verbose-aware output logging
  */
 function log(str: string, verbose: boolean): void {
@@ -12,12 +28,12 @@ function log(str: string, verbose: boolean): void {
 /**
  * Return helptext
  */
-async function helptext(repopath: string, verbose: boolean = false): Promise<string> {
-  const types = await getTypes(repopath, verbose);
+async function helptext(templatesDir: string, verbose: boolean = false): Promise<string> {
+  const types = await getTypes(templatesDir, verbose);
   return `@wymp/boilerplate - Create a new project based on pre-defined boilerplate from Wymp
 
 SYNOPSIS
-    npx @wymp/boilerplate [--verbose] create <type> <target>
+    npx @wymp/boilerplate [--verbose] create <type-or-src-dir> <target>
     npx @wymp/boilerplate [--verbose] --version
     npx @wymp/boilerplate [--verbose] --help|-h
 
@@ -26,6 +42,10 @@ DESCRIPTION
     boilerplate.  Target may be any directory, existing or new. If the directory already exists,
     boilerplate files are simply copied to it. If the directory does not yet exist, it is created
     and then boilerplate files are copied to it.
+
+    If the <type-or-src-dir> parameter is an existing directory, that directory is used as the
+    boilerplate template. Otherwise, it is assumed that the <type> parameter is one of the built-in
+    types of boilerplate listed below.
 
 TYPES
     Available types of boilerplate are the following:
@@ -50,9 +70,9 @@ async function version(repopath: string, verbose: boolean = false): Promise<stri
 /**
  * Return an array of available types of boilerplate, based on subdirectories under `/templates`
  */
-async function getTypes(repopath: string, verbose: boolean = false): Promise<Array<string>> {
+async function getTypes(templatesDir: string, verbose: boolean = false): Promise<Array<string>> {
   log(`Getting types`, verbose);
-  const boilerplates = await fs.readdir(`${repopath}/templates`);
+  const boilerplates = await fs.readdir(templatesDir);
   return boilerplates.map((path) => path.split(/[\/\\]/).pop()!);
 }
 
@@ -110,18 +130,63 @@ async function copyAll(
 }
 
 /**
+ * Get any options passed into argv, returning argv without those options, along with a full
+ * options hash. The hash is filled in by defaults which are then overridden by any options that
+ * are passed in.
+ */
+function getOptionsWithDefaults(argv: Array<string>): Params {
+  // Establish initial defaults
+  const ret: Params = {
+    binary: argv[1],
+    cmd: null,
+    options: {
+      verbose: false,
+    },
+    args: [],
+  };
+
+  // Loop through command line arguments and populate our values
+  let n = 2;
+  while (n < argv.length) {
+    const arg = argv[n];
+    switch (arg) {
+      case "--verbose":
+        ret.options.verbose = true;
+        n++;
+        break;
+      case "--help":
+      case "-h":
+        ret.cmd = "help";
+        n++;
+        break;
+      case "--version":
+        ret.cmd = "version";
+        n++;
+        break;
+      case "create":
+        ret.cmd = "create";
+        n++;
+        break;
+      default:
+        ret.args.push(arg);
+        n++;
+        break;
+    }
+  }
+
+  // Return the structure we've built
+  return ret;
+}
+
+/**
  * Validate inputs and execute the requested command
  */
 async function go(argv: Array<string>) {
-  // See if we're in "verbose" mode
-  const verbose: boolean = (argv.find((arg) => arg === "--verbose") && true) || false;
-  if (verbose) {
-    const i = argv.findIndex((arg) => arg === "--verbose");
-    argv.splice(i, 1);
-  }
+  const params = getOptionsWithDefaults(argv);
+  const verbose = params.options.verbose;
 
   // First make sure we can locate our repo path, since all other functionality depends on that
-  const binary = argv[1];
+  const binary = params.binary;
   const pathParts = binary.split(/[\/\\]/);
   let repopath: string | false = `${pathParts.slice(0, pathParts.length - 1).join("/")}`;
   log(`Starting path: ${repopath}`, verbose);
@@ -179,40 +244,51 @@ async function go(argv: Array<string>) {
     throw new Error(`Couldn't find the @wymp/boilerplate repo directory! Can't proceed :(`);
   }
 
+  // Set our templates dir
+  const templatesDir = `${repopath}/templates`;
+
   // Now that we have a repo directory, service the command
-  const cmd = argv[2];
+  const cmd = params.cmd;
 
   // Version
-  if (cmd === "--version") {
+  if (cmd === "version") {
     console.log(await version(repopath));
     return;
   }
 
   // Help
-  if (cmd === "--help" || cmd === "-h") {
-    console.log(await helptext(repopath));
+  if (cmd === "help") {
+    console.log(await helptext(templatesDir));
     return;
   }
 
   // Create
   if (cmd === "create") {
     // Make sure we've got a valid type and target
-    const typ = argv[3];
+    const typ = params.args[0];
     if (!typ) {
       throw new Error(
         `You must specify a type of boilerplate to use and a target directory. See ` +
           `'@wymp/boilerplate --help' for help.`
       );
     }
-    const validTypes = await getTypes(repopath);
-    if (!validTypes.find((t) => t === typ)) {
-      throw new Error(
-        `The type of boilerplate you've specified, '${typ}', is not one of the available types ` +
-          `offered. Please see '@wymp/boilerplate --help' for the available types of boilerplate.`
-      );
+
+    // If type is an existing directory, set the source to that
+    let src = `${templatesDir}/${typ}`;
+    if (await exists(typ)) {
+      log(`Using existing directory '${typ}' as boilerplate.`, verbose);
+      src = typ;
+    } else {
+      // Otherwise, make sure the type exists in our templates directory
+      if (!(await exists(src))) {
+        throw new Error(
+          `The type of boilerplate you've specified, '${typ}', is not one of the available types ` +
+            `offered. Please see '@wymp/boilerplate --help' for the available types of boilerplate.`
+        );
+      }
     }
 
-    const _targ = argv[4];
+    const _targ = params.args[1];
     if (!_targ) {
       throw new Error(
         `You must specify a target directory to create your project in. See '@wymp/boilerplate ` +
@@ -222,7 +298,7 @@ async function go(argv: Array<string>) {
     const targ = _targ[_targ.length - 1] === "/" ? _targ.substring(0, _targ.length - 1) : _targ;
 
     // Copy everything from boilerplate into targ
-    const errors = await copyAll(`${repopath}/templates/${typ}`, targ);
+    const errors = await copyAll(src, targ);
 
     if (errors.length > 0) {
       throw new Error(
