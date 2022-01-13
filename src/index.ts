@@ -84,7 +84,15 @@ async function copyAll(
   const files = await fs.readdir(src, { encoding: "utf8", withFileTypes: true });
   const p: Array<Promise<Array<string>>> = [];
   for (const file of files) {
-    if (file.isDirectory()) {
+    if (file.isSymbolicLink()) {
+      const linkpath = await fs.readlink(`${src}/${file.name}`);
+      p.push(
+        fs
+          .symlink(linkpath, `${targ}/${file.name}`)
+          .then((_) => <Array<string>>[])
+          .catch((e) => [e.message])
+      );
+    } else if (file.isDirectory()) {
       p.push(
         copyAll(`${src}/${file.name}`, `${targ}/${file.name}`, verbose).catch((e) => [e.message])
       );
