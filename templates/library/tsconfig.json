@@ -1,10 +1,12 @@
 {
   "compilerOptions": {
+    "declaration": true,
     "target": "es6",
     "module": "commonjs",
     "lib": ["es6"],
     "outDir": "./dist/",
-    "rootDir": "./",
+    "rootDir": "./src",
+    "baseUrl": "./",
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -14,9 +16,8 @@
     "noUnusedLocals": true,
     "noFallthroughCasesInSwitch": true,
     "moduleResolution": "node",
-    "baseUrl": "./",
     "noErrorTruncation": true,
-    "types": []
+    "types": ["node"]
   },
   "include": ["src/**/*.ts"]
 }

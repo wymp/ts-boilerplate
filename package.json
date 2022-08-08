@@ -1,6 +1,6 @@
 {
   "name": "@wymp/boilerplate",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "A collection of boilerplates to make project creation easier",
   "scripts": {
     "test": ">&2 echo 'E: No tests specified'; exit 1",
