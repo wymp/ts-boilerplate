@@ -4,7 +4,7 @@
   "serviceName": "%{PROJECT_NAME}",
   "maxJobWaitMx": 86400000,
   "initializationTimeoutMs": 10000,
-  "domain": "%{PROJECT_NAME}",
+  "domain": "%{PROJECT_NICKNAME}",
   "amqp": {
     "protocol": "amqp",
     "hostname": "localhost",
@@ -16,13 +16,14 @@
     "heartbeat": 120
   },
   "db": {
-    "socketPath": "/var/run/mysql/mysql.sock",
+    "host": "localhost",
+    "port": 3306,
     "user": "dev",
     "password": "dev",
     "database": "dev.%{PROJECT_NAME}"
   },
   "http": {
-    "listeners": [[5435, "localhost"]],
+    "listeners": [[5435, "0.0.0.0"]],
     "apiGatewayPubkeyPath": "/path/to/dev.auth-gateway.ecdsa.pem.pub"
   },
   "logger": {
