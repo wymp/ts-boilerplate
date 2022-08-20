@@ -1,22 +1,22 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "declaration": true,
-    "esModuleInterop": false,
     "target": "es6",
-    "noFallthroughCasesInSwitch": true,
+    "module": "commonjs",
+    "lib": ["es6"],
+    "outDir": "./dist/",
+    "rootDir": "./",
+    "strict": true,
     "noImplicitAny": true,
-    "noImplicitReturns": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
     "noImplicitThis": true,
     "noUnusedLocals": true,
+    "noFallthroughCasesInSwitch": true,
     "moduleResolution": "node",
-    "sourceMap": true,
-    "strictNullChecks": true,
-    "outDir": "dist",
-    "baseUrl": ".",
-    "declaration": true,
-    "types": ["node"],
-    "noErrorTruncation": true
+    "baseUrl": "./",
+    "noErrorTruncation": true,
+    "types": ["node"]
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*.ts", "run/**/*.ts"]
 }

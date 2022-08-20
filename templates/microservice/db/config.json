@@ -1,0 +1,12 @@
+{
+  "defaultEnv": "db",
+  "db": {
+    "driver": "mysql",
+    "host": { "ENV": "APP_db_host", "default": "app-db" },
+    "port": { "ENV": "APP_db_port", "default": 3306 },
+    "user": { "ENV": "APP_db_user", "default": "root" },
+    "password": { "ENV": "APP_db_password", "default": "dev" },
+    "database": { "ENV": "APP_db_database", "default": "test" },
+    "multipleStatements": true
+  }
+}

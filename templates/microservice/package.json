@@ -2,15 +2,17 @@
   "name": "@%{NAMESPACE}/%{PROJECT_NAME}",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
   "scripts": {
-    "build": "scripts/build",
-    "test": "jest"
+    "docgen": "npx redoc-cli bundle -o docs/http/api.v1.html docs/http/${PROJECT_NAME}-api.v1.json; npx typedoc src/index.ts --out ./docs/ts --sort visibility --sort source-order",
+    "docker-build": "./scripts/docker-build.sh",
+    "start": "npx -p typescript tsc && node ./dist/run/app.js",
+    "test": "jest --verbose"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://github.com:%{NAMESPACE}/%{PROJECT_NAME}-src.git"
+    "url": "git+ssh://github.com:%{NAMESPACE}/%{PROJECT_NAME}.git"
   },
   "keywords": [],
   "author": "Some Developers",
@@ -20,23 +22,22 @@
   },
   "homepage": "https://github.com/%{NAMESPACE}/%{PROJECT_NAME}#readme",
   "dependencies": {
-    "@types/node": "^8.10.58",
-    "@wymp/ts-simple-interfaces": "^0.5.1",
-    "runtypes": "^6.5.0"
+    "@types/node": "*",
+    "@wymp/weenie-framework": "^0.7.2",
+    "runtypes": "^6.6.0"
   },
   "devDependencies": {
-    "@types/jest": "^24.0.17",
-    "@wymp/simple-http-client-rpn": "^0.5.1",
-    "@wymp/ts-simple-interfaces-testing": "^0.5.0",
-    "husky": "^3.1.0",
-    "jest": "^24.8.0",
+    "@kael-shipman/db-migrate": "^1.0.0-beta.19",
+    "@types/jest": "^28.1.7",
+    "@wymp/simple-http-client-rpn": "^0.6.0",
+    "@wymp/ts-simple-interfaces-testing": "^0.6.0",
+    "husky": "^8.0.1",
+    "jest": "^28.1.3",
     "jsonwebtoken": "^8.5.1",
     "prettier": "^2.2.1",
     "pretty-quick": "^3.1.0",
-    "ts-jest": "^24.0.2",
-    "typescript": "^4.1.3",
-    "webpack": "^4.46.0",
-    "webpack-cli": "^3.3.12"
+    "ts-jest": "^28.0.8",
+    "typescript": "^4.1.3"
   },
   "prettier": {
     "printWidth": 100,

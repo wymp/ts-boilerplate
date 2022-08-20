@@ -1,0 +1,20 @@
+version: "3"
+
+services:
+  %{PROJECT_NAME}:
+    image: ghcr.io/%{NAMESPACE}/%{PROJECT_NAME}:${APP_VERSION:-dev}
+    build:
+      dockerfile: docker/Dockerfile
+      context: ../
+      secrets:
+        - npmrc
+    restart: on-failure
+    networks:
+      - %{NAMESPACE}
+
+networks:
+  %{NAMESPACE}:
+
+secrets:
+  npmrc:
+    file: ${HOME}/.npmrc
